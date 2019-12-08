@@ -66,7 +66,7 @@ int searchRec(Node* root, int coordinates[], int d)
 	return searchRec(root->right, coordinates, d + 1); 
 } 
 
-int search(Node* root, int coordinates[]) 
+int searchNode(Node* root, int coordinates[]) 
 {
 	return searchRec(root, coordinates, 0); 
 } 
@@ -98,7 +98,7 @@ int main()
 		printf("Please enter the 2-D coordinates to search: ");
 		scanf("%d",&coordinates[0]);
 		scanf("%d",&coordinates[1]);
-		(search(root, coordinates))? printf("Found\n"): printf("Not Found\n");
+		(searchNode(root, coordinates))? printf("Found\n"): printf("Not Found\n");
 		printf("Please enter the exit variable: ");
 		scanf("%d",&exitVar);
 	}while(exitVar!=1);
