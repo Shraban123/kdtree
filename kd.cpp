@@ -1,115 +1,108 @@
-// A C++ program to demonstrate operations of KD tree 
+//This program is used for insertion and searching in a K-d tree
+//This program is partly inspired by a code snippet by Aashish Barnwal 
 #include<bits/stdc++.h> 
-using namespace std; 
+using namespace std;
 
 const int k = 2; 
 
-// A structure to represent node of kd tree 
 struct Node 
 { 
-	int point[k]; // To store k dimensional point 
+	int coordinates[k];
 	Node *left, *right; 
 }; 
 
-// A method to create a node of K D tree 
 struct Node* newNode(int arr[]) 
 { 
 	struct Node* temp = new Node; 
+    int i;
+	for (i=0; i<k; i++) 
+	temp->coordinates[i] = arr[i]; 
 
-	for (int i=0; i<k; i++) 
-	temp->point[i] = arr[i]; 
-
-	temp->left = temp->right = NULL; 
+	temp->right = temp->left = NULL; 
 	return temp; 
 } 
-
-// Inserts a new node and returns root of modified tree 
-// The parameter depth is used to decide axis of comparison 
-Node *insertRec(Node *root, int point[], unsigned depth) 
+Node *recursiveInsert(Node *root, int coordinates[], int d) 
 { 
-	// Tree is empty? 
+	//Check if tree is empty? 
 	if (root == NULL) 
-	return newNode(point); 
+	return newNode(coordinates); 
+ 
+	int cd = d % k; 
 
-	// Calculate current dimension (cd) of comparison 
-	unsigned cd = depth % k; 
-
-	// Compare the new point with root on current dimension 'cd' 
-	// and decide the left or right subtree 
-	if (point[cd] < (root->point[cd])) 
-		root->left = insertRec(root->left, point, depth + 1); 
+	if (coordinates[cd] < (root->coordinates[cd])) 
+		root->left = recursiveInsert(root->left, coordinates, d + 1); 
 	else
-		root->right = insertRec(root->right, point, depth + 1); 
+		root->right = recursiveInsert(root->right, coordinates, d + 1); 
 
 	return root; 
 } 
-
-// Function to insert a new point with given point in 
-// KD Tree and return new root. It mainly uses above recursive 
-// function "insertRec()" 
-Node* insert(Node *root, int point[]) 
+ 
+Node* insertion(Node *root, int coordinates[]) 
 { 
-	return insertRec(root, point, 0); 
+	return recursiveInsert(root, coordinates, 0); 
 } 
 
-// A utility method to determine if two Points are same 
-// in K Dimensional space 
-bool arePointsSame(int point1[], int point2[]) 
-{ 
-	// Compare individual pointinate values 
-	for (int i = 0; i < k; ++i) 
-		if (point1[i] != point2[i]) 
-			return false; 
+int arePointsSame(int coordinate1[], int coordinate2[]) 
+{
+	int i;
+	for (i = 0; i < k; ++i) 
+		if (coordinate1[i] != coordinate2[i]) 
+			return 0; 
 
-	return true; 
+	return 1; 
 } 
 
-// Searches a Point represented by "point[]" in the K D tree. 
-// The parameter depth is used to determine current axis. 
-bool searchRec(Node* root, int point[], unsigned depth) 
+int searchRec(Node* root, int coordinates[], int d) 
 { 
-	// Base cases 
-	if (root == NULL) 
-		return false; 
-	if (arePointsSame(root->point, point)) 
-		return true; 
+	if (root == NULL)
+		return 0; 
+	if (arePointsSame(root->coordinates, coordinates)) 
+		return 1; 
+	int cd = d % k; 
 
-	// Current dimension is computed using current depth and total 
-	// dimensions (k) 
-	unsigned cd = depth % k; 
+	if (coordinates[cd] < root->coordinates[cd]) 
+		return searchRec(root->left, coordinates, d + 1); 
 
-	// Compare point with root with respect to cd (Current dimension) 
-	if (point[cd] < root->point[cd]) 
-		return searchRec(root->left, point, depth + 1); 
-
-	return searchRec(root->right, point, depth + 1); 
+	return searchRec(root->right, coordinates, d + 1); 
 } 
 
-// Searches a Point in the K D tree. It mainly uses 
-// searchRec() 
-bool search(Node* root, int point[]) 
-{ 
-	// Pass current depth as 0 
-	return searchRec(root, point, 0); 
+int search(Node* root, int coordinates[]) 
+{
+	return searchRec(root, coordinates, 0); 
 } 
 
-// Driver program to test above functions 
+// Main----------------------------------------------------
 int main() 
 { 
+    int no,n,i;
 	struct Node *root = NULL; 
-	int points[][k] = {{3, 6}, {17, 15}, {13, 15}, {6, 12}, 
-					{9, 1}, {2, 7}, {10, 19}}; 
+	printf("Please enter the number of points: ");
+	scanf("%d",&no);
+	int points[no][2];
+	printf("Please enter the coordinates:\n");
+	for( i = 0 ; i < no; i++ )
+	{
+		scanf("%d",&points[i][0]);
+		scanf("%d",&points[i][1]);
+	}
+	n = sizeof(points)/sizeof(points[0]); 
 
-	int n = sizeof(points)/sizeof(points[0]); 
+	for (i=0; i<n; i++) 
+	root = insertion(root, points[i]); 
 
-	for (int i=0; i<n; i++) 
-	root = insert(root, points[i]); 
-
-	int point1[] = {10, 19}; 
-	(search(root, point1))? cout << "Found\n": cout << "Not Found\n"; 
-
-	int point2[] = {12, 19}; 
-	(search(root, point2))? cout << "Found\n": cout << "Not Found\n"; 
+	printf("Please enter 1 to exit\n");
+	int exitVar = 1;
+	do
+	{
+		int coordinates[2];
+		printf("Please enter the 2-D coordinates to search: ");
+		scanf("%d",&coordinates[0]);
+		scanf("%d",&coordinates[1]);
+		(search(root, coordinates))? printf("Found\n"): printf("Not Found\n");
+		printf("Please enter the exit variable: ");
+		scanf("%d",&exitVar);
+	}while(exitVar!=1);
+	
 
 	return 0; 
 } 
